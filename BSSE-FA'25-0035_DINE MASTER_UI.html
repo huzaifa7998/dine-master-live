@@ -1,0 +1,983 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>🍽️ DINE MASTER</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Cinzel:wght@400;700;900&family=Crimson+Text:ital,wght@0,400;0,600;1,400&display=swap');
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    font-family: 'Crimson Text', Georgia, serif;
+    background: linear-gradient(135deg, #1a0a00 0%, #2d1500 50%, #1a0800 100%);
+    min-height: 100vh;
+    color: #f5e6c8;
+  }
+
+  .header {
+    background: linear-gradient(90deg, #8b0000, #cc4400, #8b0000);
+    padding: 14px 32px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    border-bottom: 3px solid #ff8c00;
+    box-shadow: 0 4px 20px rgba(255,140,0,0.4);
+    position: sticky; top: 0; z-index: 100;
+  }
+  .header-title { font-family: 'Cinzel', serif; font-size: 22px; font-weight: 900; letter-spacing: 3px; color: #ffd700; text-shadow: 0 0 20px rgba(255,215,0,0.5); }
+  .header-sub { font-size: 12px; color: #ffaa55; letter-spacing: 2px; }
+  .header-stats { display: flex; gap: 24px; align-items: center; }
+  .stat-box { text-align: center; }
+  .stat-val { color: #ffd700; font-weight: bold; font-size: 18px; font-family: 'Cinzel', serif; }
+  .stat-lbl { color: #ffaa55; font-size: 10px; letter-spacing: 1px; }
+
+  .screen { display: none; }
+  .screen.active { display: block; }
+
+  .container { max-width: 700px; margin: 60px auto; padding: 24px; }
+  .container-wide { max-width: 1100px; margin: 0 auto; padding: 24px; }
+
+  .card {
+    background: rgba(255,255,255,0.05);
+    border: 1px solid rgba(255,140,0,0.3);
+    border-radius: 12px;
+    padding: 24px;
+    backdrop-filter: blur(10px);
+  }
+
+  .section-title {
+    font-family: 'Cinzel', serif;
+    font-size: 16px;
+    font-weight: 700;
+    color: #ffd700;
+    letter-spacing: 2px;
+    margin-bottom: 16px;
+    border-bottom: 1px solid rgba(255,140,0,0.3);
+    padding-bottom: 8px;
+  }
+
+  .btn {
+    background: linear-gradient(135deg, #cc4400, #ff6600);
+    color: #fff;
+    border: none;
+    border-radius: 8px;
+    padding: 12px 24px;
+    cursor: pointer;
+    font-weight: bold;
+    letter-spacing: 1px;
+    font-size: 14px;
+    font-family: 'Cinzel', serif;
+    transition: all 0.2s;
+  }
+  .btn:hover { transform: translateY(-2px); box-shadow: 0 4px 15px rgba(255,100,0,0.4); }
+
+  .btn-gold {
+    background: linear-gradient(135deg, #b8860b, #ffd700);
+    color: #1a0800;
+    border: none; border-radius: 8px; padding: 12px 24px;
+    cursor: pointer; font-weight: bold; letter-spacing: 1px;
+    font-size: 14px; font-family: 'Cinzel', serif; transition: all 0.2s;
+  }
+  .btn-gold:hover { transform: translateY(-2px); box-shadow: 0 4px 15px rgba(255,215,0,0.4); }
+
+  .btn-green {
+    background: linear-gradient(135deg, #1a6e1a, #2ecc40);
+    color: #fff; border: none; border-radius: 8px; padding: 12px 24px;
+    cursor: pointer; font-weight: bold; letter-spacing: 1px;
+    font-size: 14px; font-family: 'Cinzel', serif; transition: all 0.2s;
+  }
+  .btn-green:hover { transform: translateY(-2px); }
+
+  .btn-red {
+    background: linear-gradient(135deg, #8b0000, #e74c3c);
+    color: #fff; border: none; border-radius: 8px; padding: 12px 24px;
+    cursor: pointer; font-weight: bold; letter-spacing: 1px;
+    font-size: 14px; font-family: 'Cinzel', serif; transition: all 0.2s;
+  }
+  .btn-red:hover { transform: translateY(-2px); }
+
+  .btn-full { width: 100%; }
+
+  input, select {
+    background: rgba(0,0,0,0.4);
+    border: 1px solid rgba(255,140,0,0.4);
+    border-radius: 8px;
+    padding: 10px 14px;
+    color: #f5e6c8;
+    width: 100%;
+    font-size: 14px;
+    outline: none;
+    font-family: 'Crimson Text', Georgia, serif;
+  }
+  input:focus { border-color: #ffd700; box-shadow: 0 0 8px rgba(255,215,0,0.3); }
+
+  label { display: block; margin-bottom: 6px; color: #ffaa55; font-size: 12px; letter-spacing: 1px; font-weight: bold; font-family: 'Cinzel', serif; }
+
+  .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+  .grid-3 { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 16px; }
+  .grid-4 { display: grid; grid-template-columns: 1fr 1fr 1fr 1fr; gap: 12px; }
+
+  .service-card {
+    border-radius: 12px; padding: 32px 16px; text-align: center;
+    cursor: pointer; transition: all 0.3s; border: 2px solid;
+    background: rgba(0,0,0,0.3);
+  }
+  .service-card:hover { transform: translateY(-6px); box-shadow: 0 8px 30px rgba(255,140,0,0.3); }
+  .service-icon { font-size: 56px; margin-bottom: 12px; }
+  .service-name { font-family: 'Cinzel', serif; font-size: 16px; font-weight: bold; color: #ffd700; letter-spacing: 2px; }
+  .service-desc { color: #ffaa55; font-size: 13px; margin-top: 8px; }
+
+  /* Menu Grid */
+  .menu-layout { display: grid; grid-template-columns: 1fr 320px; height: calc(100vh - 68px); }
+  .menu-left { overflow-y: auto; padding: 20px; }
+  .menu-right {
+    background: rgba(0,0,0,0.6);
+    border-left: 2px solid rgba(255,140,0,0.3);
+    display: flex; flex-direction: column;
+    height: 100%; overflow: hidden;
+  }
+
+  .cat-filters { display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 20px; }
+  .cat-btn {
+    padding: 6px 14px; border-radius: 20px; border: 1px solid rgba(255,140,0,0.3);
+    background: rgba(0,0,0,0.4); color: #f5e6c8; cursor: pointer;
+    font-size: 12px; font-family: 'Cinzel', serif; transition: all 0.2s;
+  }
+  .cat-btn.active { background: linear-gradient(135deg,#b8860b,#ffd700); color: #1a0800; border-color: #ffd700; }
+  .cat-btn:hover { transform: translateY(-1px); }
+
+  .menu-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(185px, 1fr)); gap: 12px; }
+  .menu-item-card {
+    background: rgba(0,0,0,0.3);
+    border: 1px solid rgba(255,140,0,0.2);
+    border-radius: 10px; padding: 12px;
+    cursor: pointer; transition: all 0.2s;
+    display: flex; flex-direction: column; gap: 6px;
+  }
+  .menu-item-card:hover { background: rgba(255,140,0,0.1); transform: translateY(-2px); }
+  .menu-item-card.out-of-stock { opacity: 0.4; cursor: not-allowed; }
+  .menu-cat-tag { font-size: 10px; font-weight: bold; letter-spacing: 1px; font-family: 'Cinzel', serif; }
+  .menu-item-name { font-weight: bold; color: #f5e6c8; font-size: 13px; line-height: 1.3; }
+  .menu-item-row { display: flex; justify-content: space-between; align-items: center; }
+  .menu-price { color: #ffd700; font-weight: bold; font-size: 15px; font-family: 'Cinzel', serif; }
+  .stock-tag {
+    display: inline-block; padding: 2px 8px; border-radius: 20px;
+    font-size: 11px; font-weight: bold; letter-spacing: 1px;
+  }
+  .stock-ok { background: rgba(26,110,26,0.4); color: #66ff66; border: 1px solid #33cc33; }
+  .stock-low { background: rgba(139,0,0,0.4); color: #ff6666; border: 1px solid #ff3333; }
+  .stock-none { background: rgba(50,50,50,0.4); color: #999; border: 1px solid #555; }
+  .prep-time { font-size: 11px; color: #888; }
+
+  /* Order Panel */
+  .order-header { padding: 16px 20px; border-bottom: 1px solid rgba(255,140,0,0.2); }
+  .order-title { font-family: 'Cinzel', serif; color: #ffd700; font-weight: bold; font-size: 15px; letter-spacing: 2px; }
+  .order-sub { color: #ffaa55; font-size: 12px; }
+  .order-items { flex: 1; overflow-y: auto; padding: 12px 16px; }
+  .order-empty { text-align: center; color: #666; margin-top: 40px; }
+  .order-empty-icon { font-size: 40px; margin-bottom: 8px; }
+  .order-item-row {
+    display: flex; justify-content: space-between; align-items: center;
+    padding: 8px 0; border-bottom: 1px solid rgba(255,140,0,0.1); gap: 8px;
+  }
+  .order-item-name { font-size: 12px; color: #f5e6c8; font-weight: bold; }
+  .order-item-price { font-size: 12px; color: #ffd700; }
+  .remove-btn {
+    background: rgba(139,0,0,0.4); border: 1px solid #ff3333;
+    border-radius: 6px; color: #ff6666; padding: 3px 8px;
+    cursor: pointer; font-size: 12px; flex-shrink: 0;
+  }
+  .remove-btn:hover { background: rgba(200,0,0,0.6); }
+
+  .order-footer {
+    padding: 16px; border-top: 2px solid rgba(255,140,0,0.3);
+    background: rgba(0,0,0,0.4);
+  }
+  .price-row { display: flex; justify-content: space-between; margin-bottom: 4px; font-size: 13px; }
+  .price-total { display: flex; justify-content: space-between; border-top: 2px solid #ffd700; padding-top: 8px; font-size: 20px; font-weight: bold; font-family: 'Cinzel', serif; }
+  .price-total span:last-child { color: #ffd700; }
+
+  /* Bill */
+  .bill-header { text-align: center; margin-bottom: 20px; }
+  .bill-restaurant { font-family: 'Cinzel', serif; font-size: 24px; font-weight: bold; color: #ffd700; letter-spacing: 3px; }
+  .bill-date { color: #ffaa55; font-size: 13px; }
+  .bill-divider { border: none; border-top: 1px dashed rgba(255,140,0,0.4); margin: 16px 0; }
+  .bill-item-row { display: flex; justify-content: space-between; padding: 4px 0; border-bottom: 1px solid rgba(255,255,255,0.05); font-size: 13px; }
+  .bill-total-row { display: flex; justify-content: space-between; font-size: 22px; font-weight: bold; font-family: 'Cinzel', serif; border-top: 2px solid #ffd700; padding-top: 8px; }
+
+  /* Stars */
+  .stars { display: flex; gap: 4px; }
+  .star { font-size: 28px; cursor: pointer; filter: brightness(0.3); transition: filter 0.2s; }
+  .star.active { filter: brightness(1.5); }
+
+  /* Discount Checkboxes */
+  .discount-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 20px; }
+  .discount-card {
+    padding: 14px; border-radius: 10px; cursor: pointer;
+    border: 2px solid rgba(255,140,0,0.2); background: rgba(0,0,0,0.3);
+    transition: all 0.2s; display: flex; align-items: center; gap: 12px;
+  }
+  .discount-card.checked { border-color: #ffd700; background: rgba(255,215,0,0.1); }
+  .discount-card:hover { border-color: rgba(255,140,0,0.6); }
+  .discount-label { font-weight: bold; font-family: 'Cinzel', serif; font-size: 13px; }
+  .discount-desc { font-size: 12px; color: #ffaa55; }
+
+  /* Owner Summary */
+  .stats-grid { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 16px; margin-bottom: 20px; }
+  .stat-card { background: rgba(0,0,0,0.3); border: 1px solid rgba(255,140,0,0.2); border-radius: 10px; padding: 16px; text-align: center; }
+  .stat-card-val { font-family: 'Cinzel', serif; color: #ffd700; font-weight: bold; font-size: 20px; }
+  .stat-card-lbl { color: #ffaa55; font-size: 11px; letter-spacing: 1px; margin-top: 4px; }
+
+  .low-stock-box { padding: 16px; background: rgba(139,0,0,0.3); border-radius: 8px; border: 1px solid #e74c3c; margin-bottom: 16px; }
+  .low-stock-title { color: #e74c3c; font-weight: bold; margin-bottom: 8px; font-family: 'Cinzel', serif; }
+  .low-stock-item { font-size: 13px; padding: 4px 0; border-bottom: 1px solid rgba(255,0,0,0.1); }
+
+  /* Toast */
+  .toast {
+    position: fixed; bottom: 24px; right: 24px;
+    padding: 14px 24px; border-radius: 10px; color: #fff;
+    font-weight: bold; font-size: 14px;
+    box-shadow: 0 4px 20px rgba(0,0,0,0.4);
+    z-index: 9999; font-family: 'Cinzel', serif;
+    animation: slideIn 0.3s ease;
+    display: none;
+  }
+  .toast.show { display: block; }
+  .toast.success { background: linear-gradient(135deg, #1a6e1a, #2ecc40); }
+  .toast.error { background: linear-gradient(135deg, #8b0000, #cc0000); }
+  @keyframes slideIn { from { transform: translateX(50px); opacity: 0; } to { transform: translateX(0); opacity: 1; } }
+
+  /* Currency result */
+  .currency-result {
+    margin-top: 10px; padding: 12px; background: rgba(255,215,0,0.1);
+    border-radius: 8px; border: 1px solid #ffd700;
+    color: #ffd700; font-weight: bold; font-family: 'Cinzel', serif;
+    display: none;
+  }
+  .currency-result.show { display: block; }
+
+  .mb-4 { margin-bottom: 16px; }
+  .mb-2 { margin-bottom: 8px; }
+  .mt-2 { margin-top: 8px; }
+  .mt-4 { margin-top: 16px; }
+  .gap-2 { gap: 8px; }
+  .flex { display: flex; }
+  .flex-wrap { flex-wrap: wrap; }
+  .center { text-align: center; }
+
+  .page-title { font-family: 'Cinzel', serif; font-size: 28px; font-weight: 900; color: #ffd700; letter-spacing: 4px; margin-bottom: 8px; }
+  .page-sub { color: #ffaa55; font-size: 14px; margin-bottom: 40px; }
+
+  .inline-checkbox { display: flex; align-items: center; gap: 8px; cursor: pointer; }
+  .inline-checkbox input { width: auto; }
+
+  .currency-btns { display: flex; gap: 8px; flex-wrap: wrap; margin-top: 8px; }
+  .curr-btn { padding: 8px 16px; font-size: 12px; }
+
+  hr.gold { border: none; border-top: 1px solid rgba(255,140,0,0.3); margin: 16px 0; }
+
+  .badge {
+    display: inline-block; padding: 3px 10px; border-radius: 20px;
+    font-size: 11px; font-weight: bold; letter-spacing: 1px; font-family: 'Cinzel', serif;
+  }
+  .badge-service { background: rgba(204,68,0,0.3); color: #ff8c00; border: 1px solid #ff8c00; }
+
+  .password-input { font-size: 24px; text-align: center; letter-spacing: 8px; }
+
+  .discount-row { display: flex; justify-content: space-between; padding: 10px 16px; background: rgba(0,0,0,0.3); border-radius: 8px; border: 1px solid rgba(255,140,0,0.2); margin-bottom: 8px; }
+
+  /* Scrollbar */
+  ::-webkit-scrollbar { width: 6px; }
+  ::-webkit-scrollbar-track { background: rgba(0,0,0,0.3); }
+  ::-webkit-scrollbar-thumb { background: rgba(255,140,0,0.4); border-radius: 3px; }
+</style>
+</head>
+<body>
+
+<!-- HEADER -->
+<div class="header" id="mainHeader" style="display:none">
+  <div>
+    <div class="header-title">🍽️ <span id="headerName">DINE MASTER</span></div>
+    <div class="header-sub"><span id="headerDate"></span></div>
+  </div>
+  <div class="header-stats">
+    <div class="stat-box">
+      <div class="stat-val" id="statSales">RS.0</div>
+      <div class="stat-lbl">TODAY'S SALES</div>
+    </div>
+    <div class="stat-box">
+      <div class="stat-val" id="statCust">0</div>
+      <div class="stat-lbl">CUSTOMERS</div>
+    </div>
+    <button class="btn-red btn" style="padding:8px 16px;font-size:12px" onclick="goTo('endday')">⛔ END DAY</button>
+  </div>
+</div>
+
+<!-- ═══════════════ SETUP SCREEN ═══════════════ -->
+<div id="screen-setup" class="screen active">
+  <div class="container" style="margin-top:80px">
+    <div class="card">
+      <div class="section-title" style="text-align:center;font-size:22px">⚙️ SYSTEM SETUP</div>
+      <div style="display:flex;flex-direction:column;gap:20px">
+        <div>
+          <label>RESTAURANT NAME</label>
+          <input id="inp-rname" placeholder="Enter your restaurant name..." />
+        </div>
+        <div class="grid-2">
+          <div>
+            <label>DATE (DD/MM/YY)</label>
+            <input id="inp-date" placeholder="18/02/26" />
+          </div>
+          <div>
+            <label>DAY</label>
+            <input id="inp-day" placeholder="Wednesday" />
+          </div>
+        </div>
+        <button class="btn-gold btn-full" style="padding:16px;font-size:16px" onclick="startSystem()">🚀 START OPERATIONS</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════ SERVICE SCREEN ═══════════════ -->
+<div id="screen-service" class="screen">
+  <div class="container" style="margin-top:50px">
+    <div class="center mb-4">
+      <div class="page-title">SELECT SERVICE TYPE</div>
+      <div class="page-sub">Choose how the customer will be served</div>
+    </div>
+    <div class="grid-3">
+      <div class="service-card" style="border-color:#16a085" onclick="selectService('ONLINE')">
+        <div class="service-icon">🛵</div>
+        <div class="service-name">ONLINE</div>
+        <div class="service-desc">Delivery to customer's address</div>
+      </div>
+      <div class="service-card" style="border-color:#8e44ad" onclick="selectService('TAKE AWAY')">
+        <div class="service-icon">📦</div>
+        <div class="service-name">TAKE AWAY</div>
+        <div class="service-desc">Customer picks up order</div>
+      </div>
+      <div class="service-card" style="border-color:#d35400" onclick="selectService('DINING')">
+        <div class="service-icon">🪑</div>
+        <div class="service-name">DINING</div>
+        <div class="service-desc">Dine in at restaurant table</div>
+      </div>
+    </div>
+    <div class="center mt-4">
+      <button class="btn-red" onclick="goTo('endday')">⛔ END DAY</button>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════ CUSTOMER SCREEN ═══════════════ -->
+<div id="screen-customer" class="screen">
+  <div class="container" style="margin-top:30px">
+    <div class="card">
+      <div class="section-title">👤 CUSTOMER INFORMATION — <span id="custServiceLabel"></span></div>
+      <div class="grid-2 mb-4">
+        <div>
+          <label>CUSTOMER NAME</label>
+          <input id="inp-cname" placeholder="Full name" />
+        </div>
+        <div>
+          <label>AGE</label>
+          <input id="inp-cage" type="number" placeholder="Age" />
+        </div>
+        <div>
+          <label>PHONE NUMBER</label>
+          <input id="inp-cphone" placeholder="03xxxxxxxxx" />
+        </div>
+        <div id="addr-field">
+          <label>DELIVERY ADDRESS</label>
+          <input id="inp-caddr" placeholder="Full delivery address" />
+        </div>
+        <div id="table-field" style="display:none">
+          <label>TABLE NUMBER (1-20)</label>
+          <input id="inp-ctable" type="number" placeholder="Table #" min="1" max="20" />
+        </div>
+      </div>
+
+      <div class="section-title">🏷️ DISCOUNT ELIGIBILITY</div>
+      <div class="discount-grid">
+        <div class="discount-card" id="disc-student" onclick="toggleDiscount('student')">
+          <span style="font-size:24px">⬜</span>
+          <div><div class="discount-label">🎓 STUDENT</div><div class="discount-desc">10% discount</div></div>
+        </div>
+        <div class="discount-card" id="disc-teacher" onclick="toggleDiscount('teacher')">
+          <span style="font-size:24px">⬜</span>
+          <div><div class="discount-label">📚 TEACHER</div><div class="discount-desc">10% discount</div></div>
+        </div>
+        <div class="discount-card" id="disc-regular" onclick="toggleDiscount('regular')">
+          <span style="font-size:24px">⬜</span>
+          <div><div class="discount-label">⭐ REGULAR</div><div class="discount-desc">15% discount</div></div>
+        </div>
+        <div class="discount-card" id="disc-foreigner" onclick="toggleDiscount('foreigner')">
+          <span style="font-size:24px">⬜</span>
+          <div><div class="discount-label">✈️ FOREIGNER</div><div class="discount-desc">25% discount</div></div>
+        </div>
+      </div>
+
+      <div style="display:flex;gap:12px">
+        <button class="btn-red" onclick="goTo('service')">← BACK</button>
+        <button class="btn-gold" style="flex:1;font-size:16px" onclick="proceedToMenu()">PROCEED TO ORDER →</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════ MENU SCREEN ═══════════════ -->
+<div id="screen-menu" class="screen">
+  <div class="menu-layout">
+    <!-- LEFT: Menu Items -->
+    <div class="menu-left">
+      <div class="cat-filters" id="catFilters"></div>
+      <div class="menu-grid" id="menuGrid"></div>
+    </div>
+    <!-- RIGHT: Order Panel -->
+    <div class="menu-right">
+      <div class="order-header">
+        <div class="order-title">🧾 ORDER</div>
+        <div class="order-sub" id="orderSubtitle"></div>
+      </div>
+      <div class="order-items" id="orderItems">
+        <div class="order-empty">
+          <div class="order-empty-icon">🍽️</div>
+          <div>Click menu items to add</div>
+        </div>
+      </div>
+      <div class="order-footer">
+        <div class="price-row"><span style="color:#aaa">Subtotal:</span><span id="priceSubtotal">RS.0</span></div>
+        <div class="price-row" id="discountRow" style="display:none"><span style="color:#2ecc40">Discount:</span><span style="color:#2ecc40" id="discountAmt"></span></div>
+
+        <div id="lateDeliveryRow" style="display:none;margin-bottom:8px">
+          <label class="inline-checkbox">
+            <input type="checkbox" id="lateCheck" onchange="updateTotal()" style="width:auto" />
+            Late Delivery? (-15%)
+          </label>
+        </div>
+
+        <div class="mb-2">
+          <label>TIP (RS.)</label>
+          <input type="number" id="tipInput" value="0" min="0" oninput="updateTotal()" placeholder="0" />
+        </div>
+
+        <div class="price-total mb-4">
+          <span>TOTAL:</span>
+          <span id="priceTotal">RS.0</span>
+        </div>
+
+        <button class="btn-gold btn-full mb-2" onclick="generateBill()">🧾 GENERATE BILL</button>
+        <button class="btn-red btn-full" style="font-size:12px;padding:8px" onclick="cancelOrder()">← CANCEL ORDER</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════ BILL SCREEN ═══════════════ -->
+<div id="screen-bill" class="screen">
+  <div class="container" style="margin-top:30px">
+    <div class="card" style="border-color:#ffd700;border-width:2px">
+      <div class="bill-header">
+        <div style="font-size:36px">🧾</div>
+        <div class="bill-restaurant" id="billRestaurant"></div>
+        <div class="bill-date" id="billDate"></div>
+        <div class="mt-2"><span class="badge badge-service" id="billServiceBadge"></span></div>
+      </div>
+      <hr class="bill-divider">
+      <div class="grid-2 mb-4" id="billInfoGrid"></div>
+      <div style="font-weight:bold;color:#ffaa55;margin-bottom:8px;font-family:'Cinzel',serif">ORDER ITEMS:</div>
+      <div id="billItems"></div>
+      <hr class="bill-divider">
+      <div id="billPriceSummary"></div>
+
+      <!-- Currency Converter -->
+      <div id="currencySection" style="display:none;margin-bottom:16px">
+        <label>CURRENCY CONVERTER</label>
+        <div class="currency-btns">
+          <button class="btn curr-btn" onclick="convertCurrency('USD')">USD</button>
+          <button class="btn curr-btn" onclick="convertCurrency('EUR')">EUR</button>
+          <button class="btn curr-btn" onclick="convertCurrency('GBP')">GBP</button>
+          <button class="btn curr-btn" onclick="convertCurrency('AED')">AED</button>
+          <button class="btn curr-btn" onclick="convertCurrency('SAR')">SAR</button>
+        </div>
+        <div class="currency-result" id="currencyResult"></div>
+      </div>
+
+      <!-- Rating -->
+      <div class="mb-4">
+        <label>RATE OUR SERVICE (1–5 ⭐)</label>
+        <div class="stars" id="starsRow">
+          <span class="star" onclick="setRating(1)">⭐</span>
+          <span class="star" onclick="setRating(2)">⭐</span>
+          <span class="star" onclick="setRating(3)">⭐</span>
+          <span class="star" onclick="setRating(4)">⭐</span>
+          <span class="star" onclick="setRating(5)">⭐</span>
+        </div>
+      </div>
+
+      <button class="btn-green btn-full" style="font-size:16px;padding:16px" onclick="completeSale()">✅ COMPLETE SALE & NEW ORDER</button>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════ END DAY SCREEN ═══════════════ -->
+<div id="screen-endday" class="screen">
+  <div class="container" style="margin-top:40px">
+    <div id="ownerLoginBox" class="card">
+      <div class="center mb-4">
+        <div style="font-size:48px">🔐</div>
+        <div class="section-title" style="text-align:center">OWNER ACCESS</div>
+        <div style="color:#ffaa55;margin-bottom:20px">Enter owner password to view daily summary</div>
+      </div>
+      <input type="password" id="ownerPassInput" class="password-input mb-4" placeholder="••••" maxlength="10" onkeydown="if(event.key==='Enter')tryOwnerLogin()" />
+      <button class="btn-gold btn-full mb-2" onclick="tryOwnerLogin()">🔓 UNLOCK</button>
+      <button class="btn-red btn-full" style="font-size:12px" onclick="goTo('service')">← BACK</button>
+    </div>
+    <div id="ownerLockedBox" class="card center" style="display:none">
+      <div style="font-size:64px">🔒</div>
+      <div style="font-size:24px;color:#e74c3c;font-weight:bold;margin-bottom:8px;font-family:'Cinzel',serif">SYSTEM LOCKED</div>
+      <div style="color:#ffaa55">Too many failed attempts. Please come back after 2 hours.</div>
+    </div>
+    <div id="ownerSummaryBox" style="display:none"></div>
+  </div>
+</div>
+
+<!-- TOAST -->
+<div class="toast" id="toast"></div>
+
+<script>
+// ═══════════════ DATA ═══════════════
+const MENU = [
+  {name:"MUTTON HANDI",price:1650,prep:1800,stock:5,cat:"MUTTON HANDI"},
+  {name:"MUTTON WHITE HANDI",price:1750,prep:2000,stock:5,cat:"MUTTON HANDI"},
+  {name:"MUTTON AFGHANI HANDI",price:1900,prep:2200,stock:5,cat:"MUTTON HANDI"},
+  {name:"MUTTON DHABA",price:850,prep:1200,stock:5,cat:"MUTTON HANDI"},
+  {name:"MUTTON HARI MIRCH",price:850,prep:1200,stock:5,cat:"MUTTON HANDI"},
+  {name:"MUTTON LEG",price:2000,prep:3600,stock:5,cat:"MUTTON HANDI"},
+  {name:"MUTTON KARAHI",price:1600,prep:2000,stock:5,cat:"MUTTON KARAHI"},
+  {name:"MUTTON WHITE KARAHI",price:1750,prep:2200,stock:5,cat:"MUTTON KARAHI"},
+  {name:"MUTTON PESHAWARI KARAHI",price:1700,prep:2100,stock:5,cat:"MUTTON KARAHI"},
+  {name:"MUTTON BLACK PEPPER KARAHI",price:1650,prep:1800,stock:5,cat:"MUTTON KARAHI"},
+  {name:"SPECIAL DHABA RICE",price:500,prep:600,stock:5,cat:"RICE"},
+  {name:"CHICKEN FRIED RICE",price:450,prep:500,stock:5,cat:"RICE"},
+  {name:"CHICKEN MASALA RICE",price:430,prep:550,stock:5,cat:"RICE"},
+  {name:"EGG RICE",price:390,prep:300,stock:5,cat:"RICE"},
+  {name:"VEGETABLE RICE",price:300,prep:350,stock:5,cat:"RICE"},
+  {name:"SP CHICKEN BIRYANI PLATTER",price:250,prep:900,stock:5,cat:"RICE"},
+  {name:"CHICKEN MANCHURIAN",price:450,prep:900,stock:5,cat:"CHINESE GRAVY"},
+  {name:"CHICKEN BLACK PEPPER",price:450,prep:900,stock:5,cat:"CHINESE GRAVY"},
+  {name:"CHICKEN WITH ALMOND",price:580,prep:1100,stock:5,cat:"CHINESE GRAVY"},
+  {name:"CHICKEN MUSHROOM & GARLIC SAUCE",price:480,prep:1000,stock:5,cat:"CHINESE GRAVY"},
+  {name:"CHICKEN MONGOLIAN",price:500,prep:1000,stock:5,cat:"CHINESE GRAVY"},
+  {name:"CHICKEN SZECHUAN",price:520,prep:1000,stock:5,cat:"CHINESE GRAVY"},
+  {name:"CHICKEN SHASHLIK WITH RICE",price:600,prep:1200,stock:5,cat:"CHINESE GRAVY"},
+  {name:"TANDOORI PARATHA",price:30,prep:180,stock:50,cat:"TANDOOR"},
+  {name:"TANDOORI ACHARI PARATHA",price:40,prep:200,stock:50,cat:"TANDOOR"},
+  {name:"DESI ROTI (PER HEAD)",price:40,prep:60,stock:50,cat:"TANDOOR"},
+  {name:"CHICKEN HANDI",price:850,prep:1800,stock:5,cat:"CHICKEN HANDI"},
+  {name:"CHICKEN ACHARI HANDI",price:870,prep:1900,stock:5,cat:"CHICKEN HANDI"},
+  {name:"CHICKEN WHITE HANDI",price:900,prep:1800,stock:5,cat:"CHICKEN HANDI"},
+  {name:"CHICKEN AFGHANI HANDI",price:950,prep:2000,stock:5,cat:"CHICKEN HANDI"},
+  {name:"CHICKEN HARYALI HANDI",price:950,prep:2000,stock:5,cat:"CHICKEN HANDI"},
+  {name:"MURGH MAKHNI",price:950,prep:2100,stock:5,cat:"CHICKEN HANDI"},
+  {name:"CHICKEN DHABA",price:950,prep:1800,stock:5,cat:"CHICKEN HANDI"},
+  {name:"CHICKEN HARI MIRCH",price:950,prep:2000,stock:5,cat:"CHICKEN HANDI"},
+  {name:"CHICKEN GINGER",price:950,prep:2000,stock:5,cat:"CHICKEN HANDI"},
+  {name:"CHICKEN JALFREZI",price:950,prep:2100,stock:5,cat:"CHICKEN HANDI"},
+  {name:"SHAHI DAAL",price:200,prep:600,stock:5,cat:"CHICKEN HANDI"},
+  {name:"SPECIAL CHICKEN KARAHI",price:900,prep:2000,stock:5,cat:"CHICKEN KARAHI"},
+  {name:"CHICKEN KARAHI",price:850,prep:1800,stock:5,cat:"CHICKEN KARAHI"},
+  {name:"CHICKEN WHITE KARAHI",price:870,prep:1900,stock:5,cat:"CHICKEN KARAHI"},
+  {name:"CHICKEN HYDERABADI KARAHI",price:900,prep:2000,stock:5,cat:"CHICKEN KARAHI"},
+  {name:"CHICKEN KASHMIRI KARAHI",price:900,prep:2000,stock:5,cat:"CHICKEN KARAHI"},
+  {name:"CHICKEN BLACK PEPPER KARAHI",price:850,prep:1800,stock:5,cat:"CHICKEN KARAHI"},
+  {name:"SP CHICKEN CHOWMEIN",price:450,prep:700,stock:5,cat:"NOODLES"},
+  {name:"VEGETABLE CHOWMEIN",price:300,prep:500,stock:5,cat:"NOODLES"},
+  {name:"AMERICAN CHOUPSY",price:500,prep:900,stock:5,cat:"NOODLES"},
+];
+
+const CAT_COLORS = {
+  "MUTTON HANDI":"#c0392b","MUTTON KARAHI":"#e74c3c","RICE":"#f39c12",
+  "CHINESE GRAVY":"#16a085","TANDOOR":"#d35400","CHICKEN HANDI":"#8e44ad",
+  "CHICKEN KARAHI":"#2980b9","NOODLES":"#27ae60"
+};
+const CAT_ICONS = {
+  "MUTTON HANDI":"🍲","MUTTON KARAHI":"🥘","RICE":"🍚","CHINESE GRAVY":"🥡",
+  "TANDOOR":"🫓","CHICKEN HANDI":"🍗","CHICKEN KARAHI":"🫕","NOODLES":"🍜"
+};
+
+// ═══════════════ STATE ═══════════════
+let menu = MENU.map(i=>({...i}));
+let restaurantName="", date="", day="";
+let serviceType="";
+let customer = {name:"",age:"",phone:"",address:"",table:"",student:false,teacher:false,regular:false,foreigner:false};
+let currentOrder = []; // array of menu indices
+let currentRating = 0;
+let ownerAttempts = 0;
+let stats = {sales:0,customers:0,items:0,tips:0,ratingSum:0,ratingCount:0,student:0,teacher:0,regular:0,foreigner:0};
+let selectedCat = "ALL";
+let finalPriceGlobal = 0;
+
+// ═══════════════ NAVIGATION ═══════════════
+function goTo(screenId) {
+  document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+  document.getElementById('screen-' + screenId).classList.add('active');
+  const showHeader = screenId !== 'setup';
+  document.getElementById('mainHeader').style.display = showHeader ? 'flex' : 'none';
+}
+
+// ═══════════════ SETUP ═══════════════
+function startSystem() {
+  restaurantName = document.getElementById('inp-rname').value.trim();
+  date = document.getElementById('inp-date').value.trim();
+  day = document.getElementById('inp-day').value.trim();
+  if (!restaurantName || !date || !day) { showToast("Please fill all fields!", "error"); return; }
+  document.getElementById('headerName').textContent = restaurantName;
+  document.getElementById('headerDate').textContent = date + ' | ' + day;
+  goTo('service');
+}
+
+// ═══════════════ SERVICE ═══════════════
+function selectService(type) {
+  serviceType = type;
+  document.getElementById('custServiceLabel').textContent = type;
+  // Show/hide address or table
+  if (type === 'ONLINE') {
+    document.getElementById('addr-field').style.display = 'block';
+    document.getElementById('table-field').style.display = 'none';
+  } else if (type === 'DINING') {
+    document.getElementById('addr-field').style.display = 'none';
+    document.getElementById('table-field').style.display = 'block';
+  } else {
+    document.getElementById('addr-field').style.display = 'none';
+    document.getElementById('table-field').style.display = 'none';
+  }
+  // Reset discounts
+  ['student','teacher','regular','foreigner'].forEach(d => {
+    customer[d] = false;
+    const el = document.getElementById('disc-'+d);
+    el.classList.remove('checked');
+    el.querySelector('span').textContent = '⬜';
+  });
+  goTo('customer');
+}
+
+// ═══════════════ DISCOUNTS ═══════════════
+function toggleDiscount(type) {
+  if (type === 'teacher' && customer.student) return;
+  customer[type] = !customer[type];
+  const el = document.getElementById('disc-'+type);
+  el.classList.toggle('checked', customer[type]);
+  el.querySelector('span').textContent = customer[type] ? '✅' : '⬜';
+}
+
+// ═══════════════ CUSTOMER FORM ═══════════════
+function proceedToMenu() {
+  customer.name = document.getElementById('inp-cname').value.trim();
+  customer.age = document.getElementById('inp-cage').value.trim();
+  customer.phone = document.getElementById('inp-cphone').value.trim();
+  customer.address = document.getElementById('inp-caddr').value.trim();
+  customer.table = document.getElementById('inp-ctable').value.trim();
+  if (!customer.name || !customer.phone) { showToast("Name and phone are required!", "error"); return; }
+  buildMenu();
+  currentOrder = [];
+  document.getElementById('tipInput').value = 0;
+  document.getElementById('lateCheck') && (document.getElementById('lateCheck').checked = false);
+  renderOrder();
+  updateTotal();
+  document.getElementById('orderSubtitle').textContent = serviceType + (serviceType === 'DINING' ? ' • Table ' + customer.table : '') + ' — ' + customer.name;
+  document.getElementById('lateDeliveryRow').style.display = serviceType === 'ONLINE' ? 'block' : 'none';
+  goTo('menu');
+}
+
+// ═══════════════ MENU ═══════════════
+function buildMenu() {
+  const cats = ['ALL', ...Object.keys(CAT_COLORS)];
+  const cf = document.getElementById('catFilters');
+  cf.innerHTML = '';
+  cats.forEach(cat => {
+    const btn = document.createElement('button');
+    btn.className = 'cat-btn' + (selectedCat === cat ? ' active' : '');
+    btn.textContent = (CAT_ICONS[cat] || '🍽️') + ' ' + cat;
+    btn.onclick = () => { selectedCat = cat; buildMenu(); };
+    cf.appendChild(btn);
+  });
+  renderMenuGrid();
+}
+
+function renderMenuGrid() {
+  const grid = document.getElementById('menuGrid');
+  grid.innerHTML = '';
+  menu.forEach((item, idx) => {
+    if (selectedCat !== 'ALL' && item.cat !== selectedCat) return;
+    const card = document.createElement('div');
+    card.className = 'menu-item-card' + (item.stock === 0 ? ' out-of-stock' : '');
+    card.style.borderColor = (CAT_COLORS[item.cat] || '#ff8c00') + '66';
+    const stockClass = item.stock === 0 ? 'stock-none' : item.stock < 3 ? 'stock-low' : 'stock-ok';
+    const stockText = item.stock === 0 ? 'OUT' : item.stock + ' left';
+    card.innerHTML = `
+      <div class="menu-cat-tag" style="color:${CAT_COLORS[item.cat]}">${CAT_ICONS[item.cat] || ''} ${item.cat}</div>
+      <div class="menu-item-name">${item.name}</div>
+      <div class="menu-item-row">
+        <div class="menu-price">RS.${item.price}</div>
+        <span class="stock-tag ${stockClass}">${stockText}</span>
+      </div>
+      <div class="prep-time">⏱ ${Math.round(item.prep/60)} min</div>
+    `;
+    if (item.stock > 0) {
+      card.onclick = () => addToOrder(idx);
+    }
+    grid.appendChild(card);
+  });
+}
+
+function addToOrder(idx) {
+  if (menu[idx].stock <= 0) { showToast("OUT OF STOCK!", "error"); return; }
+  menu[idx].stock--;
+  currentOrder.push(idx);
+  renderMenuGrid();
+  renderOrder();
+  updateTotal();
+  showToast("Added: " + menu[idx].name, "success");
+}
+
+function removeFromOrder(orderIdx) {
+  const menuIdx = currentOrder[orderIdx];
+  menu[menuIdx].stock++;
+  currentOrder.splice(orderIdx, 1);
+  renderMenuGrid();
+  renderOrder();
+  updateTotal();
+}
+
+function renderOrder() {
+  const container = document.getElementById('orderItems');
+  if (currentOrder.length === 0) {
+    container.innerHTML = '<div class="order-empty"><div class="order-empty-icon">🍽️</div><div>Click menu items to add</div></div>';
+    return;
+  }
+  container.innerHTML = '';
+  currentOrder.forEach((menuIdx, oi) => {
+    const row = document.createElement('div');
+    row.className = 'order-item-row';
+    row.innerHTML = `
+      <div style="flex:1">
+        <div class="order-item-name">${menu[menuIdx].name}</div>
+        <div class="order-item-price">RS.${menu[menuIdx].price}</div>
+      </div>
+      <button class="remove-btn" onclick="removeFromOrder(${oi})">✕</button>
+    `;
+    container.appendChild(row);
+  });
+}
+
+function calcSubtotal() {
+  return currentOrder.reduce((sum, idx) => sum + menu[idx].price, 0);
+}
+
+function calcDiscount(subtotal) {
+  if (customer.foreigner) return 0.25;
+  if (customer.regular) return 0.15;
+  if (customer.student || customer.teacher) return 0.10;
+  return 0;
+}
+
+function calcMaxTime() {
+  return currentOrder.reduce((max, idx) => Math.max(max, menu[idx].prep), 0);
+}
+
+function updateTotal() {
+  const sub = calcSubtotal();
+  const disc = calcDiscount(sub);
+  const late = serviceType === 'ONLINE' && document.getElementById('lateCheck') && document.getElementById('lateCheck').checked;
+  const tip = Number(document.getElementById('tipInput').value) || 0;
+  let after = sub - sub * disc;
+  if (late) after *= 0.85;
+  after += tip;
+
+  document.getElementById('priceSubtotal').textContent = 'RS.' + sub;
+  if (disc > 0) {
+    document.getElementById('discountRow').style.display = 'flex';
+    document.getElementById('discountAmt').textContent = '-' + (disc * 100) + '%';
+  } else {
+    document.getElementById('discountRow').style.display = 'none';
+  }
+  document.getElementById('priceTotal').textContent = 'RS.' + Math.round(after);
+}
+
+function cancelOrder() {
+  currentOrder.forEach(i => menu[i].stock++);
+  currentOrder = [];
+  renderMenuGrid();
+  goTo('service');
+}
+
+// ═══════════════ BILL ═══════════════
+function generateBill() {
+  if (currentOrder.length === 0) { showToast("No items in order!", "error"); return; }
+
+  const sub = calcSubtotal();
+  const disc = calcDiscount(sub);
+  const late = serviceType === 'ONLINE' && document.getElementById('lateCheck').checked;
+  const tip = Number(document.getElementById('tipInput').value) || 0;
+  let fp = sub - sub * disc;
+  if (late) fp *= 0.85;
+  fp += tip;
+  finalPriceGlobal = Math.round(fp);
+
+  // Bill restaurant header
+  document.getElementById('billRestaurant').textContent = restaurantName;
+  document.getElementById('billDate').textContent = date + ' | ' + day;
+  document.getElementById('billServiceBadge').textContent = serviceType;
+
+  // Info grid
+  let infoHTML = `
+    <div><label>CUSTOMER</label><div>${customer.name}</div></div>
+    <div><label>PHONE</label><div>${customer.phone}</div></div>
+  `;
+  if (serviceType === 'ONLINE') infoHTML += `<div style="grid-column:1/-1"><label>ADDRESS</label><div>${customer.address}</div></div>`;
+  if (serviceType === 'DINING') infoHTML += `<div><label>TABLE</label><div>#${customer.table}</div></div>`;
+  infoHTML += `<div><label>PREP TIME</label><div>~${Math.round(calcMaxTime()/60)} min</div></div>`;
+  document.getElementById('billInfoGrid').innerHTML = infoHTML;
+
+  // Items
+  let itemsHTML = '';
+  currentOrder.forEach((idx, i) => {
+    itemsHTML += `<div class="bill-item-row"><span>${i+1}. ${menu[idx].name}</span><span style="color:#ffd700">RS.${menu[idx].price}</span></div>`;
+  });
+  document.getElementById('billItems').innerHTML = itemsHTML;
+
+  // Price summary
+  let priceHTML = `<div style="display:flex;justify-content:space-between;margin-bottom:4px"><span style="color:#aaa">Subtotal</span><span>RS.${sub}</span></div>`;
+  if (disc > 0) priceHTML += `<div style="display:flex;justify-content:space-between;margin-bottom:4px"><span style="color:#2ecc40">Discount (${disc*100}%)</span><span style="color:#2ecc40">-RS.${Math.round(sub*disc)}</span></div>`;
+  if (late) priceHTML += `<div style="display:flex;justify-content:space-between;margin-bottom:4px"><span style="color:#e74c3c">Late Delivery (-15%)</span><span style="color:#e74c3c">Applied</span></div>`;
+  if (tip > 0) priceHTML += `<div style="display:flex;justify-content:space-between;margin-bottom:4px"><span style="color:#aaa">Tip</span><span>RS.${tip}</span></div>`;
+  priceHTML += `<div class="bill-total-row"><span style="color:#ffd700">TOTAL</span><span>RS.${finalPriceGlobal}</span></div>`;
+  document.getElementById('billPriceSummary').innerHTML = priceHTML;
+
+  // Currency converter for foreigners
+  document.getElementById('currencySection').style.display = customer.foreigner ? 'block' : 'none';
+  document.getElementById('currencyResult').classList.remove('show');
+
+  // Reset stars
+  currentRating = 0;
+  document.querySelectorAll('.star').forEach(s => s.classList.remove('active'));
+
+  goTo('bill');
+}
+
+function convertCurrency(curr) {
+  const rates = {USD:0.0036, EUR:0.0033, GBP:0.0028, AED:0.013, SAR:0.013};
+  const result = (finalPriceGlobal * rates[curr]).toFixed(2);
+  const el = document.getElementById('currencyResult');
+  el.textContent = `RS.${finalPriceGlobal} = ${result} ${curr}`;
+  el.classList.add('show');
+}
+
+function setRating(r) {
+  currentRating = r;
+  document.querySelectorAll('.star').forEach((s, i) => {
+    s.classList.toggle('active', i < r);
+  });
+}
+
+function completeSale() {
+  stats.sales += finalPriceGlobal;
+  stats.customers += 1;
+  stats.items += currentOrder.length;
+  stats.tips += Number(document.getElementById('tipInput').value) || 0;
+  if (currentRating > 0) { stats.ratingSum += currentRating; stats.ratingCount++; }
+  if (customer.student) stats.student++;
+  if (customer.teacher) stats.teacher++;
+  if (customer.regular) stats.regular++;
+  if (customer.foreigner) stats.foreigner++;
+
+  updateHeaderStats();
+  currentOrder = [];
+  showToast("Sale completed successfully! 🎉", "success");
+  goTo('service');
+}
+
+function updateHeaderStats() {
+  document.getElementById('statSales').textContent = 'RS.' + stats.sales;
+  document.getElementById('statCust').textContent = stats.customers;
+}
+
+// ═══════════════ END DAY / OWNER ═══════════════
+function tryOwnerLogin() {
+  const pass = Number(document.getElementById('ownerPassInput').value);
+  if (pass === 4666) {
+    document.getElementById('ownerLoginBox').style.display = 'none';
+    renderOwnerSummary();
+    document.getElementById('ownerSummaryBox').style.display = 'block';
+  } else {
+    ownerAttempts++;
+    document.getElementById('ownerPassInput').value = '';
+    if (ownerAttempts >= 3) {
+      document.getElementById('ownerLoginBox').style.display = 'none';
+      document.getElementById('ownerLockedBox').style.display = 'block';
+    } else {
+      showToast(`Wrong password (${ownerAttempts}/3)`, "error");
+    }
+  }
+}
+
+function renderOwnerSummary() {
+  const avgRating = stats.ratingCount > 0 ? (stats.ratingSum / stats.ratingCount).toFixed(1) + '/5 ⭐' : 'N/A';
+  const discounts = {Student:stats.student, Teacher:stats.teacher, Regular:stats.regular, Foreigner:stats.foreigner};
+  const mostUsed = Object.entries(discounts).sort((a,b)=>b[1]-a[1])[0];
+  const lowStock = menu.filter(m => m.stock < 3);
+
+  let lowStockHTML = '';
+  if (lowStock.length > 0) {
+    lowStockHTML = `<div class="low-stock-box">
+      <div class="low-stock-title">⚠️ LOW STOCK ALERT</div>
+      ${lowStock.map(i => `<div class="low-stock-item">${i.name} — <span style="color:#ff6666">${i.stock} left</span></div>`).join('')}
+    </div>`;
+  }
+
+  document.getElementById('ownerSummaryBox').innerHTML = `
+    <div class="card" style="border-color:#ffd700;border-width:2px;margin-bottom:20px">
+      <div class="center mb-4">
+        <div style="font-size:32px">📊</div>
+        <div style="font-family:'Cinzel',serif;font-size:22px;color:#ffd700;font-weight:bold;letter-spacing:3px">DAILY SUMMARY</div>
+        <div style="color:#ffaa55">${restaurantName} | ${date} — ${day}</div>
+      </div>
+      <div class="stats-grid">
+        <div class="stat-card"><div class="stat-card-val">RS.${stats.sales}</div><div class="stat-card-lbl">TOTAL SALES</div></div>
+        <div class="stat-card"><div class="stat-card-val">${stats.customers}</div><div class="stat-card-lbl">CUSTOMERS SERVED</div></div>
+        <div class="stat-card"><div class="stat-card-val">${stats.items}</div><div class="stat-card-lbl">ITEMS SOLD</div></div>
+        <div class="stat-card"><div class="stat-card-val">RS.${stats.tips}</div><div class="stat-card-lbl">TIPS RECEIVED</div></div>
+        <div class="stat-card"><div class="stat-card-val">${avgRating}</div><div class="stat-card-lbl">AVG RATING</div></div>
+        <div class="stat-card"><div class="stat-card-val">${mostUsed[1] > 0 ? mostUsed[0] : 'None'}</div><div class="stat-card-lbl">TOP DISCOUNT</div></div>
+      </div>
+
+      <div class="section-title">🏷️ DISCOUNT BREAKDOWN</div>
+      <div class="grid-2 mb-4">
+        <div class="discount-row"><span>🎓 Student</span><span style="color:#ffd700;font-weight:bold">${stats.student}</span></div>
+        <div class="discount-row"><span>📚 Teacher</span><span style="color:#ffd700;font-weight:bold">${stats.teacher}</span></div>
+        <div class="discount-row"><span>⭐ Regular</span><span style="color:#ffd700;font-weight:bold">${stats.regular}</span></div>
+        <div class="discount-row"><span>✈️ Foreigner</span><span style="color:#ffd700;font-weight:bold">${stats.foreigner}</span></div>
+      </div>
+
+      ${lowStockHTML}
+
+      <button class="btn-red btn-full" onclick="goTo('service')">← BACK TO SERVICE</button>
+    </div>
+  `;
+}
+
+// ═══════════════ TOAST ═══════════════
+let toastTimer;
+function showToast(msg, type = 'success') {
+  const el = document.getElementById('toast');
+  el.textContent = (type === 'error' ? '❌ ' : '✅ ') + msg;
+  el.className = 'toast show ' + type;
+  clearTimeout(toastTimer);
+  toastTimer = setTimeout(() => { el.classList.remove('show'); }, 3000);
+}
+</script>
+</body>
+</html>
